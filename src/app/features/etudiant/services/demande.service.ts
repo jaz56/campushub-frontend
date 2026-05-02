@@ -1,25 +1,24 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Demande } from '../../../core/models/demande';
+import { Observable, of } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface DemandeRequest {
+  type: string;
+  message?: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class DemandeService {
-  private apiUrl = '/api/v1/requests';
+  private apiUrl = `${environment.apiUrl}/requests`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  submitRequest(request: Partial<Demande>): Observable<Demande> {
-    return this.http.post<Demande>(this.apiUrl, request);
+  createRequest(demande: DemandeRequest): Observable<any> {
+    return this.http.post<any>(`http://localhost:8082/api/requests`, demande);
   }
 
-  getMyRequests(): Observable<Demande[]> {
-    return this.http.get<Demande[]>(`${this.apiUrl}/my`);
-  }
-
-  getRequest(id: number): Observable<Demande> {
-    return this.http.get<Demande>(`${this.apiUrl}/${id}`);
+  getMyRequests(): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:8082/api/requests`);
   }
 }

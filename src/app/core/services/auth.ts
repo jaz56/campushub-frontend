@@ -9,10 +9,11 @@ export interface User {
   nom: string;
   prenom: string;
   email: string;
-  role: 'ETUDIANT' | 'ENSEIGNANT' | 'RESPONSABLE_CLUB' | 'MODERATEUR' | 'ADMIN';
-  token: string;
+  roles: ('ETUDIANT' | 'ENSEIGNANT' | 'RESPONSABLE_CLUB' | 'ADMIN')[];
+  token?: string;
+  avatar?: string;
+  departement?: string;
 }
-
 export interface LoginRequest {
   email: string;
   password: string;
@@ -49,7 +50,7 @@ export class AuthService {
   }
 
   get isAdmin(): boolean {
-    return this.currentUser?.role === 'ADMIN';
+    return this.currentUser?.roles?.includes('ADMIN') ?? false;
   }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {

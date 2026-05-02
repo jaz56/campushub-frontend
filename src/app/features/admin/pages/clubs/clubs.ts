@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AdminService } from '../../services/admin.service';
 
 @Component({
   selector: 'app-clubs',
@@ -7,17 +8,47 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './clubs.html'
 })
-export class Clubs {
-  clubs = [
-    { nom: 'Club Robotique', responsable: 'Karim Mansour', membres: 45, status: 'ACTIF', categorie: 'Technologie' },
-    { nom: 'Club Entrepreneuriat', responsable: 'Sonia Trabelsi', membres: 32, status: 'ACTIF', categorie: 'Business' },
-    { nom: 'Club Dev', responsable: 'Ahmed Ben Ali', membres: 28, status: 'ACTIF', categorie: 'Technologie' },
-    { nom: 'Club IA', responsable: 'Leila Bouzid', membres: 15, status: 'EN_ATTENTE', categorie: 'Technologie' },
-    { nom: 'Club Arts', responsable: 'Mohamed Sassi', membres: 20, status: 'ACTIF', categorie: 'Culture' },
-  ];
+export class Clubs implements OnInit {
+  clubs: any[] = [];
+  loading = true;
 
-  approuver(club: any): void { club.status = 'ACTIF'; }
-  suspendre(club: any): void { club.status = 'SUSPENDU'; }
+  constructor(
+    private adminService: AdminService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
+    this.loadClubs();
+  }
+
+  loadClubs(): void {
+    this.adminService.getAllClubs().subscribe({
+      next: (data) => {
+        this.clubs = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  approuver(club: any): void {
+    this.adminService.approuverClub(club.id).subscribe({
+      next: () => this.loadClubs(),
+      error: (err) => console.error(err)
+    });
+  }
+
+  suspendre(club: any): void {
+    this.adminService.suspendreClub(club.id).subscribe({
+      next: () => this.loadClubs(),
+      error: (err) => console.error(err)
+    });
+  }
 
   getStatusClass(status: string): string {
     const classes: any = {

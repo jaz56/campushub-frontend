@@ -1,0 +1,237 @@
+<div class="space-y-6">
+
+  <!-- En-tête de page -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">Calendrier des Réservations 📅</h2>
+      <p class="text-gray-500 text-sm mt-1">Vue globale de toutes les réservations de l'établissement</p>
+    </div>
+    <div class="flex gap-3">
+      <button (click)="exporterCalendrier()"
+        class="px-4 py-2 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition">
+        📤 Exporter (.ics)
+      </button>
+      <a routerLink="/admin/reservations"
+        class="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-semibold hover:shadow-lg transition">
+        🏫 Gérer les réservations
+      </a>
+    </div>
+  </div>
+
+  <!-- Statistiques rapides -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Aujourd'hui</p>
+          <p class="text-3xl font-bold text-primary">{{ nombreReservationsAujourdhui }}</p>
+          <p class="text-xs text-gray-400 mt-1">réservations</p>
+        </div>
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📅</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500 mb-1">En attente</p>
+          <p class="text-3xl font-bold text-yellow-500">{{ nombreEnAttente }}</p>
+          <p class="text-xs text-gray-400 mt-1">à traiter</p>
+        </div>
+        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-2xl">⏳</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Conflits</p>
+          <p class="text-3xl font-bold" [ngClass]="nombreConflits > 0 ? 'text-red-500' : 'text-gray-400'">
+            {{ nombreConflits }}
+          </p>
+          <p class="text-xs text-gray-400 mt-1">détectés</p>
+        </div>
+        <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+          [ngClass]="nombreConflits > 0 ? 'bg-red-100' : 'bg-gray-100'">
+          {{ nombreConflits > 0 ? '⚠️' : '✓' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Total</p>
+          <p class="text-3xl font-bold text-gray-900">{{ reservations.length }}</p>
+          <p class="text-xs text-gray-400 mt-1">réservations</p>
+        </div>
+        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">📊</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+    <h3 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Filtres</h3>
+    <div class="flex flex-wrap gap-3">
+      <!-- Bâtiment -->
+      <button (click)="appliquerFiltreBatiment('TOUS')" class="px-4 py-2 rounded-lg font-medium text-sm transition"
+        [ngClass]="filtreBatiment === 'TOUS' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+        🏫 Tous les bâtiments
+      </button>
+      <button (click)="appliquerFiltreBatiment('Bâtiment Annexe')"
+        class="px-4 py-2 rounded-lg font-medium text-sm transition"
+        [ngClass]="filtreBatiment === 'Bâtiment Annexe' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+        💻 Annexe
+      </button>
+      <button (click)="appliquerFiltreBatiment('Bâtiment Principal')"
+        class="px-4 py-2 rounded-lg font-medium text-sm transition"
+        [ngClass]="filtreBatiment === 'Bâtiment Principal' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+        🏭 Principal
+      </button>
+
+      <div class="border-l border-gray-300 mx-1"></div>
+
+      <!-- Statut -->
+      <button (click)="appliquerFiltreStatut('TOUS')" class="px-4 py-2 rounded-lg font-medium text-sm transition"
+        [ngClass]="filtreStatut === 'TOUS' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+        Tous
+      </button>
+      <button (click)="appliquerFiltreStatut('APPROUVEE')" class="px-4 py-2 rounded-lg font-medium text-sm transition"
+        [ngClass]="filtreStatut === 'APPROUVEE' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+        ✅ Approuvées
+      </button>
+      <button (click)="appliquerFiltreStatut('EN_ATTENTE')" class="px-4 py-2 rounded-lg font-medium text-sm transition"
+        [ngClass]="filtreStatut === 'EN_ATTENTE' ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+        ⏳ En attente
+      </button>
+      <button (click)="appliquerFiltreStatut('REJETEE')" class="px-4 py-2 rounded-lg font-medium text-sm transition"
+        [ngClass]="filtreStatut === 'REJETEE' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+        ❌ Rejetées
+      </button>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+  </div>
+
+  <!-- Calendrier FullCalendar -->
+  <div *ngIf="!loading" class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+
+  <!-- Légende -->
+  <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+    <h3 class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">Légende</h3>
+    <div class="flex flex-wrap gap-6">
+      <div class="flex items-center gap-2">
+        <div class="w-4 h-4 bg-green-500 rounded"></div>
+        <span class="text-sm text-gray-700">Approuvée</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-4 h-4 bg-yellow-500 rounded"></div>
+        <span class="text-sm text-gray-700">En attente</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-4 h-4 bg-red-500 rounded"></div>
+        <span class="text-sm text-gray-700">Rejetée</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Détails Réservation (Admin) -->
+<div *ngIf="showDetails && reservationSelectionnee"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="fermerDetails()">
+  <div class="bg-white rounded-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto shadow-2xl"
+    (click)="$event.stopPropagation()">
+
+    <div class="flex items-start justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">Détails de la réservation</h2>
+      <button (click)="fermerDetails()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">✕</button>
+    </div>
+
+    <div class="space-y-5">
+
+      <!-- Salle + statut -->
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">
+          {{ reservationSelectionnee.salle?.batiment === 'Bâtiment Annexe' ? '💻' : '🏭' }}
+        </span>
+        <div class="flex-1">
+          <h3 class="text-xl font-bold text-gray-900">{{ reservationSelectionnee.salle?.nom }}</h3>
+          <p class="text-gray-500">{{ reservationSelectionnee.salle?.batiment }} — Étage {{
+            reservationSelectionnee.salle?.etage }}</p>
+        </div>
+        <span class="px-4 py-2 rounded-full text-sm font-semibold" [ngClass]="{
+          'bg-green-100 text-green-700': reservationSelectionnee.statut === 'APPROUVEE',
+          'bg-yellow-100 text-yellow-700': reservationSelectionnee.statut === 'EN_ATTENTE',
+          'bg-red-100 text-red-700': reservationSelectionnee.statut === 'REJETEE'
+        }">
+          {{ reservationSelectionnee.statut }}
+        </span>
+      </div>
+
+      <!-- Motif -->
+      <div class="bg-gray-50 rounded-xl p-4">
+        <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide">Motif</p>
+        <p class="text-gray-800 font-medium">{{ reservationSelectionnee.motif }}</p>
+      </div>
+
+      <!-- Infos -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide">Date</p>
+          <p class="font-semibold text-gray-800">{{ reservationSelectionnee.dateDebut | date:'dd/MM/yyyy' }}</p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide">Horaire</p>
+          <p class="font-semibold text-gray-800">
+            {{ reservationSelectionnee.dateDebut | date:'HH:mm' }} — {{ reservationSelectionnee.dateFin | date:'HH:mm'
+            }}
+          </p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide">Capacité salle</p>
+          <p class="font-semibold text-gray-800">{{ reservationSelectionnee.salle?.capacite }} pers.</p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-xs text-gray-400 mb-1 uppercase tracking-wide">Participants prévus</p>
+          <p class="font-semibold text-gray-800">{{ reservationSelectionnee.nombreParticipants || 'Non spécifié' }}</p>
+        </div>
+      </div>
+
+      <!-- Équipements -->
+      <div *ngIf="reservationSelectionnee.salle?.equipements?.length">
+        <p class="text-xs text-gray-400 mb-2 uppercase tracking-wide">Équipements</p>
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let eq of reservationSelectionnee.salle?.equipements || []"
+            class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
+            {{ eq }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Actions Admin -->
+      <div class="border-t pt-5 flex gap-3">
+        <button *ngIf="reservationSelectionnee.statut === 'EN_ATTENTE'"
+          (click)="approuverReservation(reservationSelectionnee.id!)"
+          class="flex-1 px-5 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition">
+          ✅ Approuver
+        </button>
+        <button *ngIf="reservationSelectionnee.statut === 'EN_ATTENTE'"
+          (click)="rejeterReservation(reservationSelectionnee.id!)"
+          class="flex-1 px-5 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition">
+          ❌ Rejeter
+        </button>
+        <button (click)="fermerDetails()"
+          class="flex-1 px-5 py-3 border border-gray-300 rounded-xl font-semibold hover:bg-gray-50 transition">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

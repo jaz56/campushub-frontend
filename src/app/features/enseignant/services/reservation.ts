@@ -91,4 +91,21 @@ export class ReservationService {
   modifierReservation(id: string, reservation: Partial<Reservation>): Observable<Reservation> {
     return this.http.put<Reservation>(`${this.apiUrl}/reservations/${id}`, reservation);
   }
+
+  // ── Méthodes ADMIN ────────────────────────────────────────────
+
+  // Récupérer TOUTES les réservations (admin)
+  getToutesReservations(): Observable<Reservation[]> {
+    return this.http.get<Reservation[]>(`${this.apiUrl}/reservations`);
+  }
+
+  // Approuver une réservation
+  approuverReservation(id: string): Observable<Reservation> {
+    return this.http.put<Reservation>(`${this.apiUrl}/reservations/${id}/approuver`, {});
+  }
+
+  // Rejeter une réservation
+  rejeterReservation(id: string, commentaire?: string): Observable<Reservation> {
+    return this.http.put<Reservation>(`${this.apiUrl}/reservations/${id}/rejeter`, { commentaire });
+  }
 }

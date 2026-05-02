@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -21,6 +21,8 @@ export class Notifications {
     { titre: 'Nouveaux clubs disponibles', message: 'De nouveaux clubs sont ouverts aux inscriptions', cible: 'ETUDIANTS', date: '10 Avr 2025', lu: 380 },
   ];
 
+  constructor(private cdr: ChangeDetectorRef) { }
+
   envoyer(): void {
     if (!this.titre || !this.message) return;
     this.loading = true;
@@ -36,7 +38,11 @@ export class Notifications {
       });
       this.titre = '';
       this.message = '';
-      setTimeout(() => this.sent = false, 3000);
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.sent = false;
+        this.cdr.detectChanges();
+      }, 3000);
     }, 1500);
   }
 }

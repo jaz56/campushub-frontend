@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -39,9 +39,9 @@ export class ReservationSalle implements OnInit {
 
   constructor(
     private reservationService: ReservationService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef  // ← ajoute ça
   ) {
-    // Définir la date minimale à aujourd'hui
     const today = new Date();
     this.dateMin = today.toISOString().split('T')[0];
   }
@@ -58,12 +58,15 @@ export class ReservationSalle implements OnInit {
         this.sallesFiltrees = salles;
         this.etagesDisponibles = [...new Set(salles.map(s => s.etage))].sort((a, b) => a - b);
         this.loadingSalles = false;
+        this.cdr.detectChanges();
         console.log('✅ Salles chargées:', salles.length, 'salles');
       },
       error: (error) => {
         console.error('❌ Erreur chargement salles:', error);
         this.loadingSalles = false;
         this.error = 'Erreur lors du chargement des salles';
+        this.cdr.detectChanges();
+
       }
     });
   }

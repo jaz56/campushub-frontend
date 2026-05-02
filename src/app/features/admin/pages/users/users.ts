@@ -1,19 +1,62 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AdminService } from '../../services/admin.service';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './users.html'
 })
-export class Users {
-  users = [
-    { nom: 'Ben Ali', prenom: 'Ahmed', email: 'ahmed.benali@enicarthage.tn', role: 'ETUDIANT', status: 'actif' },
-    { nom: 'Trabelsi', prenom: 'Sonia', email: 'sonia.trabelsi@enicarthage.tn', role: 'ENSEIGNANT', status: 'actif' },
-    { nom: 'Mansour', prenom: 'Karim', email: 'karim.mansour@enicarthage.tn', role: 'RESPONSABLE_CLUB', status: 'actif' },
-    { nom: 'Bouzid', prenom: 'Leila', email: 'leila.bouzid@enicarthage.tn', role: 'ETUDIANT', status: 'inactif' },
-  ];
+export class Users implements OnInit {
+  users: any[] = [];
+  usersFiltres: any[] = [];
+  recherche = '';
+  loading = true;
+
+  constructor(
+    private adminService: AdminService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
+    this.adminService.getUsers().subscribe({
+      next: (data) => {
+        this.users = data;
+        this.usersFiltres = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  filtrer(): void {
+    const r = this.recherche.toLowerCase();
+    this.usersFiltres = this.users.filter(u =>
+      u.nom?.toLowerCase().includes(r) ||
+      u.prenom?.toLowerCase().includes(r) ||
+      u.email?.toLowerCase().includes(r)
+    );
+  }
+
+  supprimer(id: number): void {
+    if (confirm('Supprimer cet utilisateur ?')) {
+      this.adminService.deleteUser(id).subscribe({
+        next: () => this.loadUsers(),
+        error: (err) => console.error(err)
+      });
+    }
+  }
 
   getRoleBadge(role: string): string {
     const badges: any = {

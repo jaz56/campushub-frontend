@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReservationService, Reservation } from '../../services/reservation';
 import { Header } from '../../../../shared/components/header/header';
+import { AuthService } from '../../../../core/services/auth';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,14 +13,23 @@ import { Header } from '../../../../shared/components/header/header';
   styleUrls: ['./dashboard.scss']
 })
 export class DashboardComponent implements OnInit {
+  private authService = inject(AuthService);
+
   reservationsAVenir: Reservation[] = [];
   prochaineReservation?: Reservation;
   nombreReservationsActives = 0;
   loading = true;
-  userName = 'Jean Dupont';
-  userRole = 'Enseignant - Département Informatique';
 
-  constructor(private reservationService: ReservationService) { }
+  get userName(): string {
+    const user = this.authService.currentUser;
+    return user ? `${user.prenom} ${user.nom}` : 'Enseignant';
+  }
+
+  get userRole(): string {
+    return 'Enseignant';
+  }
+
+  constructor(private reservationService: ReservationService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.chargerReservations();
@@ -44,12 +54,14 @@ export class DashboardComponent implements OnInit {
         this.prochaineReservation = this.reservationsAVenir[0];
         this.nombreReservationsActives = this.reservationsAVenir.length;
         this.loading = false;
+        this.cdr.detectChanges();
 
         console.log('✅ Réservations chargées:', reservations);
       },
       error: (error) => {
         console.error('❌ Erreur lors du chargement des réservations', error);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

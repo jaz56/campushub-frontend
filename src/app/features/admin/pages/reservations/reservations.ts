@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AdminService, AdminReservation } from '../../services/admin.service';
 
 @Component({
   selector: 'app-reservations',
@@ -7,13 +8,46 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './reservations.html'
 })
-export class Reservations {
-  reservations = [
-    { salle: 'Amphi A', demandeur: 'Dr. Trabelsi', date: '20 Avr 2025', heure: '09:00 - 11:00', motif: 'Cours magistral', status: 'EN_ATTENTE' },
-    { salle: 'Labo Info 2', demandeur: 'Club Robotique', date: '21 Avr 2025', heure: '14:00 - 17:00', motif: 'Atelier IA', status: 'APPROUVEE' },
-    { salle: 'Salle B12', demandeur: 'Dr. Mansour', date: '22 Avr 2025', heure: '10:00 - 12:00', motif: 'TD Réseaux', status: 'EN_ATTENTE' },
-  ];
+export class Reservations implements OnInit {
+  reservations: AdminReservation[] = [];
+  loading = true;
 
-  approuver(r: any): void { r.status = 'APPROUVEE'; }
-  rejeter(r: any): void { r.status = 'REJETEE'; }
+  constructor(
+    private adminService: AdminService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
+    this.loadReservations();
+  }
+
+  loadReservations(): void {
+    this.adminService.getAllReservations().subscribe({
+      next: (data) => {
+        this.reservations = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  approuver(r: AdminReservation): void {
+    this.adminService.approuverReservation(r.id).subscribe({
+      next: () => this.loadReservations(),
+      error: (err) => console.error(err)
+    });
+  }
+
+  rejeter(r: AdminReservation): void {
+    const commentaire = prompt('Raison du rejet :') || '';
+    this.adminService.rejeterReservation(r.id, commentaire).subscribe({
+      next: () => this.loadReservations(),
+      error: (err) => console.error(err)
+    });
+  }
 }

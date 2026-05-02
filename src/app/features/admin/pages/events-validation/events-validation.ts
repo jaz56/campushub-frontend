@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AdminService, AdminEvent } from '../../services/admin.service';
 
 @Component({
   selector: 'app-events-validation',
@@ -7,18 +8,46 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './events-validation.html'
 })
-export class EventsValidation {
-  events = [
-    { titre: 'Hackathon IA 2025', club: 'Club Robotique', date: '20 Avr 2025', lieu: 'Amphi A', participants: 50, status: 'EN_ATTENTE' },
-    { titre: 'Soirée networking', club: 'Club Entrepreneuriat', date: '25 Avr 2025', lieu: 'Salle B12', participants: 30, status: 'EN_ATTENTE' },
-    { titre: 'Workshop Angular', club: 'Club Dev', date: '28 Avr 2025', lieu: 'Labo Info', participants: 25, status: 'EN_ATTENTE' },
-  ];
+export class EventsValidation implements OnInit {
+  events: AdminEvent[] = [];
+  loading = true;
 
-  approuver(event: any): void {
-    event.status = 'APPROUVE';
+  constructor(
+    private adminService: AdminService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
+    this.loadEvents();
   }
 
-  rejeter(event: any): void {
-    event.status = 'REJETE';
+  loadEvents(): void {
+    this.adminService.getAllEvents().subscribe({
+      next: (data) => {
+        this.events = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  approuver(event: AdminEvent): void {
+    this.adminService.approuverEvent(event.id).subscribe({
+      next: () => this.loadEvents(),
+      error: (err) => console.error(err)
+    });
+  }
+
+  rejeter(event: AdminEvent): void {
+    const commentaire = prompt('Raison du rejet :') || '';
+    this.adminService.rejeterEvent(event.id, commentaire).subscribe({
+      next: () => this.loadEvents(),
+      error: (err) => console.error(err)
+    });
   }
 }

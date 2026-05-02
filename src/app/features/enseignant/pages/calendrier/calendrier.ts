@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventInput, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -16,7 +16,7 @@ import { Header } from '../../../../shared/components/header/header';
 @Component({
   selector: 'app-calendrier',
   standalone: true,
-  imports: [CommonModule, FormsModule, FullCalendarModule, Header],
+  imports: [CommonModule, FormsModule, FullCalendarModule, RouterModule, Header],
   templateUrl: './calendrier.html',
   styleUrls: ['./calendrier.scss']
 })
@@ -41,7 +41,8 @@ export class Calendrier implements OnInit {
     slotMaxTime: '20:00:00',
     allDaySlot: false,
     height: 'auto',
-    weekends: false, // Masquer le week-end par défaut
+    weekends: true,
+    hiddenDays: [0], // 0 = Dimanche (masqué), 6 = Samedi (affiché)
     events: [],
     eventClick: this.handleEventClick.bind(this),
     dateClick: this.handleDateClick.bind(this),
@@ -71,7 +72,8 @@ export class Calendrier implements OnInit {
 
   constructor(
     private reservationService: ReservationService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -91,9 +93,11 @@ export class Calendrier implements OnInit {
       this.calculerStatistiques();
       this.afficherReservations();
       this.loading = false;
+      this.cdr.detectChanges();
     }).catch(error => {
       console.error('❌ Erreur chargement données:', error);
       this.loading = false;
+      this.cdr.detectChanges();
     });
   }
 

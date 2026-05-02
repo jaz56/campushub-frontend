@@ -3,6 +3,7 @@ export interface Evenement {
   title: string;
   description?: string;
   date: string;               // ISO string or LocalDateTime → string from backend
+  dateTime?: string;
   location?: string;
   capacity: number;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';

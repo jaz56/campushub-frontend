@@ -2,26 +2,29 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Club, ClubApplication } from '../../../core/models';
-
+import { environment } from '../../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
 export class ClubService {
-  private apiUrl = '/api/v1/clubs';
-
-  constructor(private http: HttpClient) {}
+  private apiUrl = 'http://localhost:8082/api/clubs';
+  constructor(private http: HttpClient) { }
 
   // Student features
   getActiveClubs(): Observable<Club[]> {
-    return this.http.get<Club[]>(`${this.apiUrl}/active`);
+    return this.http.get<Club[]>(this.apiUrl);  // GET /api/v1/clubs
   }
 
   getClub(id: number): Observable<Club> {
     return this.http.get<Club>(`${this.apiUrl}/${id}`);
   }
 
-  applyToClub(clubId: number, motivation: string): Observable<string> {
-    return this.http.post<string>(`${this.apiUrl}/${clubId}/apply`, { motivation });
+  applyToClub(id: number, motivation: string): Observable<string> {
+    return this.http.post(
+      `${this.apiUrl}/${id}/apply`,
+      { motivation },
+      { responseType: 'text' }
+    );
   }
 
   getMyApplications(): Observable<ClubApplication[]> {

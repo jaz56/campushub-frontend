@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AdminService } from '../../services/admin.service';
 
 @Component({
   selector: 'app-requests',
@@ -8,26 +9,56 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule],
   templateUrl: './requests.html'
 })
-export class Requests {
+export class Requests implements OnInit {
   activeTab = 'tous';
   rejectComment = '';
   showRejectModal = false;
   selectedRequest: any = null;
+  requests: any[] = [];
+  loading = true;
 
-  requests = [
-    { id: 1, type: 'CERTIFICAT', demandeur: 'Ahmed Ben Ali', detail: 'Certificat de scolarité', date: '18 Avr 2025', status: 'EN_ATTENTE' },
-    { id: 2, type: 'REMBOURSEMENT', demandeur: 'Club Robotique', detail: 'Remboursement matériel 250 TND', date: '17 Avr 2025', status: 'EN_ATTENTE' },
-    { id: 3, type: 'CERTIFICAT', demandeur: 'Leila Bouzid', detail: 'Attestation de réussite', date: '16 Avr 2025', status: 'APPROUVE' },
-    { id: 4, type: 'MATERIEL', demandeur: 'Club Dev', detail: 'Demande projecteur + écran', date: '15 Avr 2025', status: 'REJETE' },
-    { id: 5, type: 'REMBOURSEMENT', demandeur: 'Sonia Trabelsi', detail: 'Remboursement déplacement 80 TND', date: '14 Avr 2025', status: 'EN_ATTENTE' },
-  ];
+  constructor(
+    private adminService: AdminService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
+    this.loadRequests();
+  }
+
+  loadRequests(): void {
+    this.loading = true;
+    this.cdr.detectChanges();
+    this.adminService.getAllDemandes().subscribe({
+      next: (data) => {
+        this.requests = [...data];  // ← spread pour forcer la détection
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   get filteredRequests() {
     if (this.activeTab === 'tous') return this.requests;
-    return this.requests.filter(r => r.status === this.activeTab.toUpperCase());
+    const map: any = { 'en_attente': 'EN_ATTENTE', 'approuve': 'APPROUVE', 'rejete': 'REJETE' };
+    return this.requests.filter(r => r.statut === map[this.activeTab]);
   }
 
-  approuver(r: any): void { r.status = 'APPROUVE'; }
+  approuver(r: any): void {
+    this.adminService.approuverDemande(r.id).subscribe({
+      next: () => {
+        this.requests = [];  // ← vide d'abord
+        this.cdr.detectChanges();
+        this.loadRequests();  // ← puis recharge
+      },
+      error: (err) => console.error(err)
+    });
+  }
 
   openRejectModal(r: any): void {
     this.selectedRequest = r;
@@ -37,11 +68,15 @@ export class Requests {
 
   confirmerRejet(): void {
     if (this.selectedRequest) {
-      this.selectedRequest.status = 'REJETE';
-      this.selectedRequest.comment = this.rejectComment;
+      this.adminService.rejeterDemande(this.selectedRequest.id, this.rejectComment).subscribe({
+        next: () => {
+          this.showRejectModal = false;
+          this.selectedRequest = null;
+          this.loadRequests();
+        },
+        error: (err) => console.error(err)
+      });
     }
-    this.showRejectModal = false;
-    this.selectedRequest = null;
   }
 
   getTypeIcon(type: string): string {

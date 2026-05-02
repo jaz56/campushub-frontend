@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';   
+import { CommonModule } from '@angular/common';
 
 import { EtudiantRoutingModule } from './etudiant-routing-module';
 
@@ -13,16 +13,18 @@ import { EvenementService } from './services/evenement.service';
 import { DemandeService } from './services/demande.service';
 
 import { Header } from '../../shared/components/header/header';
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     DashboardComponent,
     ClubsComponent,
     EvenementsComponent,
     MesDemandesComponent
+
   ],
   imports: [
-    CommonModule,                    
-    EtudiantRoutingModule,Header
+    CommonModule,
+    EtudiantRoutingModule, Header, FormsModule
   ],
   providers: [
     ClubService,

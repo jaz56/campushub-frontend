@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AdminService, AdminStats, AdminEvent } from '../../services/admin.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -7,17 +8,58 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './dashboard.html'
 })
-export class Dashboard {
-  kpis = [
-    { label: 'Utilisateurs actifs', value: '1,248', icon: '👥', color: 'bg-blue-50 text-blue-600' },
-    { label: 'Événements ce mois', value: '34', icon: '📅', color: 'bg-green-50 text-green-600' },
-    { label: 'Demandes en attente', value: '12', icon: '📋', color: 'bg-yellow-50 text-yellow-600' },
-    { label: 'Réservations salles', value: '89', icon: '🏫', color: 'bg-purple-50 text-purple-600' },
-  ];
+export class Dashboard implements OnInit {
+  stats: AdminStats = {
+    totalUsers: 0, totalEvents: 0, pendingEvents: 0,
+    pendingReservations: 0, pendingDemandes: 0, totalClubs: 0
+  };
+  pendingEvents: AdminEvent[] = [];
+  loading = true;
 
-  pendingEvents = [
-    { titre: 'Hackathon IA 2025', club: 'Club Robotique', date: '20 Avr 2025', status: 'en_attente' },
-    { titre: 'Soirée networking', club: 'Club Entrepreneuriat', date: '25 Avr 2025', status: 'en_attente' },
-    { titre: 'Workshop Angular', club: 'Club Dev', date: '28 Avr 2025', status: 'en_attente' },
-  ];
+  constructor(
+    private adminService: AdminService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.adminService.getStats().subscribe({
+      next: (stats) => {
+        this.stats = stats;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error(err)
+    });
+
+    this.adminService.getPendingEvents().subscribe({
+      next: (events) => {
+        this.pendingEvents = events;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  approuver(id: number): void {
+    this.adminService.approuverEvent(id).subscribe({
+      next: () => this.loadData(),
+      error: (err) => console.error(err)
+    });
+  }
+
+  rejeter(id: number): void {
+    const commentaire = prompt('Raison du rejet :') || '';
+    this.adminService.rejeterEvent(id, commentaire).subscribe({
+      next: () => this.loadData(),
+      error: (err) => console.error(err)
+    });
+  }
 }

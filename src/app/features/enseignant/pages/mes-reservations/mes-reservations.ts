@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -39,8 +39,10 @@ export class MesReservations implements OnInit {
     });
   }
 
-  constructor(private reservationService: ReservationService) { }
-
+  constructor(
+    private reservationService: ReservationService,
+    private cdr: ChangeDetectorRef  // ← ajoute ça
+  ) { }
   ngOnInit(): void {
     this.chargerReservations();
   }
@@ -55,11 +57,13 @@ export class MesReservations implements OnInit {
         this.calculerStatistiques();
         this.appliquerFiltres();
         this.loading = false;
+        this.cdr.detectChanges();
         console.log('✅ Réservations chargées:', reservations);
       },
       error: (error) => {
         console.error('❌ Erreur chargement réservations:', error);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

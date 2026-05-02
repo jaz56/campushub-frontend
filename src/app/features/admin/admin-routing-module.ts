@@ -10,6 +10,7 @@ import { Requests } from './pages/requests/requests';
 import { Notifications } from './pages/notifications/notifications';
 import { Analytics } from './pages/analytics/analytics';
 import { Profile } from './pages/profile/profile';
+import { AdminCalendrier } from './pages/calendrier/calendrier';
 
 const routes: Routes = [
     {
@@ -21,6 +22,7 @@ const routes: Routes = [
             { path: 'users', component: Users },
             { path: 'events', component: EventsValidation },
             { path: 'reservations', component: Reservations },
+            { path: 'calendrier', component: AdminCalendrier },
             { path: 'clubs', component: Clubs },
             { path: 'requests', component: Requests },
             { path: 'notifications', component: Notifications },

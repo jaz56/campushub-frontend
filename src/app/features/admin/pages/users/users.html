@@ -11,29 +11,33 @@
 
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="p-5 border-b border-gray-100">
-      <input type="text" placeholder="🔍 Rechercher un utilisateur..."
-        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+      <input type="text" [(ngModel)]="recherche" (ngModelChange)="filtrer()"
+        placeholder="🔍 Rechercher un utilisateur..."
+        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
     </div>
-    <table class="w-full">
+
+    <div *ngIf="loading" class="flex justify-center items-center h-32">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+
+    <table *ngIf="!loading" class="w-full">
       <thead class="bg-gray-50">
         <tr>
           <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Utilisateur</th>
           <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Email</th>
           <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Rôle</th>
-          <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Statut</th>
           <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Actions</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
-        <tr *ngFor="let user of users" class="hover:bg-gray-50 transition">
+        <tr *ngFor="let user of usersFiltres" class="hover:bg-gray-50 transition">
           <td class="px-6 py-4">
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
-                {{ user.prenom.charAt(0) }}{{ user.nom.charAt(0) }}
+              <div
+                class="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                {{ user.prenom?.charAt(0) }}{{ user.nom?.charAt(0) }}
               </div>
-              <div>
-                <p class="font-medium text-gray-800 text-sm">{{ user.prenom }} {{ user.nom }}</p>
-              </div>
+              <p class="font-medium text-gray-800 text-sm">{{ user.prenom }} {{ user.nom }}</p>
             </div>
           </td>
           <td class="px-6 py-4 text-sm text-gray-600">{{ user.email }}</td>
@@ -43,16 +47,16 @@
             </span>
           </td>
           <td class="px-6 py-4">
-            <span [class]="user.status === 'actif' ? 'bg-green-100 text-green-700 text-xs font-medium px-3 py-1 rounded-full' : 'bg-red-100 text-red-700 text-xs font-medium px-3 py-1 rounded-full'">
-              {{ user.status }}
-            </span>
-          </td>
-          <td class="px-6 py-4">
             <div class="flex gap-2">
-              <button class="text-blue-500 hover:text-blue-700 text-sm font-medium transition">Modifier</button>
-              <button class="text-red-500 hover:text-red-700 text-sm font-medium transition">Supprimer</button>
+              <button (click)="supprimer(user.id)"
+                class="text-red-500 hover:text-red-700 text-sm font-medium transition">
+                Supprimer
+              </button>
             </div>
           </td>
+        </tr>
+        <tr *ngIf="usersFiltres.length === 0">
+          <td colspan="4" class="text-center py-8 text-gray-500">Aucun utilisateur trouvé</td>
         </tr>
       </tbody>
     </table>

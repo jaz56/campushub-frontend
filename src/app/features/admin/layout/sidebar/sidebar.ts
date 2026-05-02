@@ -14,6 +14,7 @@ export class SidebarComponent {
     { label: 'Utilisateurs', icon: '👥', route: '/admin/users' },
     { label: 'Événements', icon: '📅', route: '/admin/events' },
     { label: 'Réservations', icon: '🏫', route: '/admin/reservations' },
+    { label: 'Calendrier', icon: '🗓️', route: '/admin/calendrier' },
     { label: 'Clubs', icon: '🎯', route: '/admin/clubs' },
     { label: 'Demandes admin', icon: '📋', route: '/admin/requests' },
     { label: 'Notifications', icon: '🔔', route: '/admin/notifications' },

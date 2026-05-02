@@ -1,14 +1,14 @@
-// src/app/core/guards/admin.guard.ts
-import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth';
 
-@Injectable({ providedIn: 'root' })
-export class AdminGuard implements CanActivate {
-  constructor(private auth: AuthService, private router: Router) { }
-  canActivate(): boolean {
-    if (this.auth.isAdmin) return true;
-    this.router.navigate(['/auth/login']);
-    return false;
-  }
-}
+export const adminGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (auth.isLoggedIn && auth.isAdmin) return true;
+  if (!auth.isLoggedIn) return router.createUrlTree(['/auth/login']);
+  // Connecté mais pas admin → redirige vers son dashboard
+  const roles = auth.currentUser?.roles;
+  if (roles?.includes('ENSEIGNANT')) return router.createUrlTree(['/enseignant/dashboard']);
+  return router.createUrlTree(['/etudiant/dashboard']);
+};
