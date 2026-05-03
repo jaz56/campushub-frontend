@@ -110,11 +110,11 @@
         <!-- Suggestions rapides -->
         <div class="px-4 py-2 bg-white border-t border-gray-200">
             <div class="flex gap-2 overflow-x-auto pb-2">
-                <button (click)="chatbotService.executerAction({label: 'Réserver', type: 'function', data: 'reserver'})"
+                <button (click)="executerAction({label: 'Réserver', type: 'function', data: 'reserver'})"
                     class="flex-shrink-0 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium hover:bg-blue-100 transition">
                     📅 Réserver
                 </button>
-                <button (click)="chatbotService.executerAction({label: 'Aide', type: 'function', data: 'aide'})"
+                <button (click)="executerAction({label: 'Aide', type: 'function', data: 'aide'})"
                     class="flex-shrink-0 px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-xs font-medium hover:bg-purple-100 transition">
                     ❓ Aide
                 </button>

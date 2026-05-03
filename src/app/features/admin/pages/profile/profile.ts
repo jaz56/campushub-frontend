@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth';
 
@@ -12,6 +12,7 @@ import { AuthService } from '../../../../core/services/auth';
 export class Profile implements OnInit {
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+  private location = inject(Location);
 
   saved = false;
 
@@ -54,5 +55,9 @@ export class Profile implements OnInit {
     alert('✅ Mot de passe mis à jour avec succès');
     this.passwords = { current: '', new: '', confirm: '' };
     this.cdr.detectChanges();
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

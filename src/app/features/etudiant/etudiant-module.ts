@@ -14,6 +14,7 @@ import { DemandeService } from './services/demande.service';
 
 import { Header } from '../../shared/components/header/header';
 import { FormsModule } from '@angular/forms';
+import { ChatbotWidget } from '../../shared/components/chatbot-widget/chatbot-widget';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -24,7 +25,7 @@ import { FormsModule } from '@angular/forms';
   ],
   imports: [
     CommonModule,
-    EtudiantRoutingModule, Header, FormsModule
+    EtudiantRoutingModule, Header, FormsModule, ChatbotWidget
   ],
   providers: [
     ClubService,

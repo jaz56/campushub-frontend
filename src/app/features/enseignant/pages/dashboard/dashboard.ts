@@ -4,20 +4,26 @@ import { RouterModule } from '@angular/router';
 import { ReservationService, Reservation } from '../../services/reservation';
 import { Header } from '../../../../shared/components/header/header';
 import { AuthService } from '../../../../core/services/auth';
+import { ChatbotWidget } from '../../../../shared/components/chatbot-widget/chatbot-widget';
+import { ChatbotEnseignant } from '../../services/chatbot';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, Header],
+  imports: [CommonModule, RouterModule, Header, ChatbotWidget],
+  providers: [ChatbotEnseignant],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
 export class DashboardComponent implements OnInit {
+
   private authService = inject(AuthService);
+  public enseignantChatbot = inject(ChatbotEnseignant);
 
   reservationsAVenir: Reservation[] = [];
   prochaineReservation?: Reservation;
   nombreReservationsActives = 0;
+  nombreEnAttente = 0;
   loading = true;
 
   get userName(): string {
@@ -40,28 +46,24 @@ export class DashboardComponent implements OnInit {
     this.reservationService.getMesReservations().subscribe({
       next: (reservations) => {
         const maintenant = new Date();
-
-        // Filtrer et trier les réservations à venir
         this.reservationsAVenir = reservations
           .filter(r => {
             const dateDebut = new Date(r.dateDebut);
-            return dateDebut > maintenant && r.statut === 'APPROUVEE';
+            return dateDebut > maintenant &&
+              (r.statut === 'APPROUVEE' || r.statut === 'EN_ATTENTE');
           })
-          .sort((a, b) => {
-            return new Date(a.dateDebut).getTime() - new Date(b.dateDebut).getTime();
-          });
+          .sort((a, b) => new Date(a.dateDebut).getTime() - new Date(b.dateDebut).getTime());
 
         this.prochaineReservation = this.reservationsAVenir[0];
         this.nombreReservationsActives = this.reservationsAVenir.length;
+        this.nombreEnAttente = reservations.filter(r => r.statut === 'EN_ATTENTE').length;
         this.loading = false;
-        this.cdr.detectChanges();
-
-        console.log('✅ Réservations chargées:', reservations);
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('❌ Erreur lors du chargement des réservations', error);
         this.loading = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -73,10 +75,7 @@ export class DashboardComponent implements OnInit {
           this.chargerReservations();
           alert('✅ Réservation annulée avec succès');
         },
-        error: (error) => {
-          console.error('❌ Erreur lors de l\'annulation', error);
-          alert('❌ Erreur lors de l\'annulation de la réservation');
-        }
+        error: () => alert('❌ Erreur lors de l\'annulation de la réservation')
       });
     }
   }

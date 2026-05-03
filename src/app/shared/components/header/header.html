@@ -34,8 +34,8 @@
                         </p>
                         <p class="text-xs text-gray-400">{{ currentUser?.roles?.[0]}}</p>
                     </div>
-                    <div
-                        class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    <div (click)="goToProfile()"
+                        class="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:opacity-80 transition">
                         {{ currentUser?.prenom?.charAt(0) }}{{ currentUser?.nom?.charAt(0) }}
                     </div>
                     <button (click)="logout()"

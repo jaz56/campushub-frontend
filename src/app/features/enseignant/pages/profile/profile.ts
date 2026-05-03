@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../../core/services/auth';
 
 @Component({
@@ -12,6 +13,9 @@ import { AuthService } from '../../../../core/services/auth';
 export class Profile implements OnInit {
   private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+  private http = inject(HttpClient);
+  private location = inject(Location);
+  private apiUrl = 'http://localhost:8082/api/v1/profile';
 
   saved = false;
 
@@ -41,18 +45,41 @@ export class Profile implements OnInit {
   }
 
   saveProfile(): void {
-    this.saved = true;
-    this.cdr.detectChanges();
-    setTimeout(() => {
-      this.saved = false;
-      this.cdr.detectChanges();
-    }, 3000);
+    this.http.put(this.apiUrl, {
+      prenom: this.enseignant.prenom,
+      nom: this.enseignant.nom,
+      email: this.enseignant.email,
+      telephone: this.enseignant.telephone
+    }).subscribe({
+      next: () => {
+        this.saved = true;
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.saved = false;
+          this.cdr.detectChanges();
+        }, 3000);
+      },
+      error: (err) => alert('❌ Erreur: ' + err.error)
+    });
   }
 
   changePassword(): void {
     if (this.passwords.new !== this.passwords.confirm) return;
-    alert('✅ Mot de passe mis à jour avec succès');
-    this.passwords = { current: '', new: '', confirm: '' };
-    this.cdr.detectChanges();
+    this.http.put(`${this.apiUrl}/password`, {
+      current: this.passwords.current,
+      new: this.passwords.new
+    }, { responseType: 'text' }).subscribe({
+      next: (msg) => {
+        alert('✅ ' + msg);
+        this.passwords = { current: '', new: '', confirm: '' };
+        this.cdr.detectChanges();
+      },
+      error: (err) => alert('❌ ' + err.error)
+    });
   }
+
+  goBack(): void {
+    this.location.back();
+  }
+
 }

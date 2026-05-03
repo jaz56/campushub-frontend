@@ -1,10 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ChatbotWidget } from "./shared/components/chatbot-widget/chatbot-widget";
-
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ChatbotWidget],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

@@ -3,6 +3,8 @@ import { ClubService } from '../../services/club.service';
 import { EvenementService } from '../../services/evenement.service';
 import { DemandeService } from '../../services/demande.service';
 import { Club, Evenement, Demande } from '../../../../core/models';
+import { ChatbotWidget } from '../../../../shared/components/chatbot-widget/chatbot-widget';
+import { ChatbotEtudiant } from '../../services/chatbot-etudiant';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +22,8 @@ export class DashboardComponent implements OnInit {
     private clubService: ClubService,
     private evenementService: EvenementService,
     private demandeService: DemandeService,
-    private cdr: ChangeDetectorRef  // ← ajoute ça
+    private cdr: ChangeDetectorRef,
+    public chatbot: ChatbotEtudiant // ← ajoute ça
   ) { }
 
 

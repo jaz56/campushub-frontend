@@ -31,6 +31,11 @@ const routes: Routes = [
     path: 'profile',
     loadComponent: () => import('./pages/profile/profile')
       .then(m => m.Profile)
+  },
+  {
+    path: 'mes-demandes',
+    loadComponent: () => import('./pages/mes-demandes/mes-demandes')
+      .then(m => m.MesDemandes)
   }
 ];
 
