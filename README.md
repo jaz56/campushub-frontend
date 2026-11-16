@@ -1,59 +1,168 @@
-# CampushubFrontend
+# 🎓 CampusHub — Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.3.
+Interface web de **CampusHub**, une plateforme de gestion universitaire pour l'**ENICarthage**.
+Elle propose un espace dédié à chaque profil (**étudiant**, **enseignant**, **administrateur**) pour réserver des salles, suivre les événements et les clubs, et faire ses demandes administratives.
 
-## Development server
+Développée avec **Angular 21** et **Tailwind CSS**. Elle consomme l'API REST Spring Boot du dépôt backend.
 
-To start a local development server, run:
+> 🔗 **Backend :** [jaz56/campushub-backend](https://github.com/jaz56/campushub-backend)
 
-```bash
-ng serve
+---
+
+## ✨ Fonctionnalités
+
+### 👨‍🏫 Espace Enseignant
+- **Tableau de bord** personnel
+- **Réservation de salle** : recherche des salles disponibles sur un créneau, puis envoi de la demande
+- **Mes réservations** : suivi des statuts (en attente, approuvée, rejetée), modification et annulation
+- **Calendrier** des réservations (vues mois, semaine, jour et liste avec FullCalendar)
+- **Assistant chatbot** qui guide pas à pas dans une réservation de salle
+
+### 🎓 Espace Étudiant
+- **Tableau de bord**
+- **Événements** du campus, avec inscription
+- **Clubs**
+- **Mes demandes** : demandes de documents administratifs et suivi de leur état
+
+### 🛡️ Espace Administrateur *(en cours d'intégration)*
+- Tableau de bord et **statistiques**
+- **Validation des réservations**
+- **Gestion des utilisateurs**
+- Notifications et profil
+
+### 🔐 Authentification
+- Connexion et mot de passe oublié
+- **Guards** de route (`authGuard`, `adminGuard`)
+- **Intercepteur HTTP** qui ajoute le token JWT à chaque requête
+
+---
+
+## 🛠️ Technologies
+
+| Catégorie | Outils |
+|---|---|
+| Framework | Angular 21 (composants standalone, lazy loading, SSR) |
+| Langage | TypeScript 5.9 |
+| Style | Tailwind CSS 3, SCSS |
+| Calendrier | FullCalendar 6 |
+| Icônes | Lucide Angular |
+| Authentification | @auth0/angular-jwt |
+| Réactivité | RxJS |
+| Tests | Vitest |
+| Rendu serveur | Angular SSR + Express |
+
+---
+
+## 🏗️ Architecture
+
+```
+src/app/
+├── core/
+│   ├── guards/          # auth-guard, admin-guard
+│   ├── interceptors/    # auth-token-interceptor (JWT)
+│   ├── models/          # User, Salle, Reservation, Evenement, Demande, Club, Etudiant
+│   └── services/        # api, auth
+├── shared/
+│   ├── components/      # header, chatbot-widget
+│   └── pipes/           # markdown-to-html
+└── features/            # modules chargés à la demande (lazy loading)
+    ├── auth/            # login, forgot-password
+    ├── enseignant/      # dashboard, reservation-salle, mes-reservations, calendrier
+    ├── etudiant/        # dashboard, evenements, clubs, mes-demandes
+    └── admin/           # dashboard, analytics, reservations, users, notifications, profile
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Routes principales
 
-## Code scaffolding
+| Route | Page |
+|---|---|
+| `/auth/login` | Connexion |
+| `/auth/forgot-password` | Mot de passe oublié |
+| `/enseignant/dashboard` | Tableau de bord enseignant |
+| `/enseignant/reservation-salle` | Réserver une salle |
+| `/enseignant/mes-reservations` | Mes réservations |
+| `/enseignant/calendrier` | Calendrier |
+| `/etudiant/dashboard` | Tableau de bord étudiant |
+| `/etudiant/evenements` | Événements |
+| `/etudiant/clubs` | Clubs |
+| `/etudiant/mes-demandes` | Mes demandes |
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+---
 
-```bash
-ng generate component component-name
-```
+## 🚀 Installation et lancement
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Prérequis
+- **Node.js** 20 ou plus et **npm**
+- **Angular CLI** : `npm install -g @angular/cli`
+- Le [backend CampusHub](https://github.com/jaz56/campushub-backend) lancé en local
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 1. Cloner et installer
 
 ```bash
-ng test
+git clone https://github.com/jaz56/campushub-frontend.git
+cd campushub-frontend
+npm install
 ```
 
-## Running end-to-end tests
+### 2. Configurer l'URL de l'API
 
-For end-to-end (e2e) testing, run:
+Dans `src/environments/environment.development.ts`, indiquez l'adresse du backend. Par défaut, il tourne sur le port `8082` :
+
+```ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8082/api/v1'
+};
+```
+
+### 3. Lancer le serveur de développement
 
 ```bash
-ng e2e
+npm start
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+L'application est accessible sur **http://localhost:4200**. C'est l'origine autorisée par la configuration CORS du backend.
 
-## Additional Resources
+### Autres commandes
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```bash
+npm run build                          # build de production → dist/
+npm test                               # tests unitaires (Vitest)
+npm run serve:ssr:campushub-frontend   # lancer la version SSR après le build
+```
+
+---
+
+## 🧪 Comptes de démonstration
+
+Ces comptes sont créés automatiquement par le backend au démarrage :
+
+| Rôle | Email | Mot de passe |
+|---|---|---|
+| Admin | `admin@enicarthage.tn` | `admin123` |
+| Enseignant | `jean.dupont@enicarthage.tn` | `enseignant123` |
+| Étudiant | `ahmed.benali@enicarthage.tn` | `etudiant123` |
+
+---
+
+## 🗺️ Améliorations prévues
+
+- [ ] Réactiver et brancher le module **Admin** sur l'API
+- [ ] Aligner les routes du service d'événements étudiant sur celles du backend
+- [ ] Authentification JWT complète, côté front et côté back
+- [ ] Configuration de l'URL de production
+
+---
+
+## 🔗 Dépôts du projet
+
+| Partie | Dépôt |
+|---|---|
+| Frontend (Angular) | [jaz56/campushub-frontend](https://github.com/jaz56/campushub-frontend) |
+| Backend (Spring Boot) | [jaz56/campushub-backend](https://github.com/jaz56/campushub-backend) |
+
+---
+
+## 👩‍💻 Équipe
+
+Projet réalisé par des étudiants en génie logiciel de l'**ENICarthage**.
